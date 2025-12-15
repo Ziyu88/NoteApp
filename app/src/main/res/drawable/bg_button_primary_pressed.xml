@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 主按钮按下时的背景 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 阴影层 -->
+    <item android:top="1dp" android:left="1dp" android:right="1dp" android:bottom="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#9C27B0" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <!-- 主层（更亮的紫色） -->
+    <item android:top="0dp" android:left="0dp" android:right="0dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#CE93D8" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</layer-list>
+

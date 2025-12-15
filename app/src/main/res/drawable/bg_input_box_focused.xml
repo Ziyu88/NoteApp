@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 输入框获得焦点时的背景 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 阴影层：使用主背景色，适配夜间模式 -->
+    <item android:top="1dp" android:left="1dp" android:right="1dp" android:bottom="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/background_primary" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <!-- 主层：使用卡片色 + 主题高亮描边 -->
+    <item android:top="0dp" android:left="0dp" android:right="0dp" android:bottom="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/background_card" />
+            <stroke android:width="2dp" android:color="@color/purple_200" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</layer-list>
+

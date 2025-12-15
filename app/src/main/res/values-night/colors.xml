@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主题相关颜色 - 夜间模式 -->
+    <color name="background_primary">#121212</color>
+    <color name="background_card">#1E1E1E</color>
+    <color name="background_search">#2C2C2C</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="text_hint">#808080</color>
+    <color name="divider">#3C3C3C</color>
+    <color name="icon_tint">#B0B0B0</color>
+    <!-- 搜索关键词高亮颜色 - 夜间模式 -->
+    <color name="text_highlight">#FFEB3B</color>
+</resources>
+

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:padding="16dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- 选中图标 -->
+    <ImageView
+        android:id="@+id/imageViewCheck"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="12dp"
+        android:src="@android:drawable/checkbox_on_background"
+        android:tint="#FFA500"
+        android:visibility="gone" />
+
+    <!-- 分类名称 -->
+    <TextView
+        android:id="@+id/textViewCategoryName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/imageViewCheck"
+        android:layout_centerVertical="true"
+        android:text="分类名称"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary" />
+
+    <!-- 笔记数量 -->
+    <TextView
+        android:id="@+id/textViewNoteCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:text="0"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary" />
+
+</RelativeLayout>
+
