@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme - 夜间模式 -->
+    <style name="Theme.NotepadApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color - 夜间模式使用深色 -->
+        <item name="android:statusBarColor">@color/background_primary</item>
+        <!-- 背景颜色 -->
+        <item name="android:colorBackground">@color/background_primary</item>
+        <item name="android:windowBackground">@color/background_primary</item>
+    </style>
+</resources>

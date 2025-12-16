@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 主按钮状态选择器 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 按下时 -->
+    <item android:state_pressed="true" android:drawable="@drawable/bg_button_primary_pressed" />
+    <!-- 默认状态 -->
+    <item android:drawable="@drawable/bg_button_primary" />
+</selector>
+
