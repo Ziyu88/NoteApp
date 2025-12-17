@@ -1,7 +1,7 @@
 package com.calculator.notepadapp;
 
-import android.app.Activity;
-import android.content.Intent;import android.os.Build;
+import android.content.Intent;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,7 +22,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
@@ -40,10 +42,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_ADD_NOTE = 1;
-    private static final int REQUEST_EDIT_NOTE = 2;
-    private static final int REQUEST_CATEGORY = 3;
-    private static final int REQUEST_MOVE_TO_CATEGORY = 4;
+
+    private ActivityResultLauncher<Intent> addNoteLauncher;
+    private ActivityResultLauncher<Intent> editNoteLauncher;
+    private ActivityResultLauncher<Intent> categoryLauncher;
+    private ActivityResultLauncher<Intent> moveToCategoryLauncher;
 
     private RecyclerView recyclerView;
     private NoteAdapter adapter;
@@ -94,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main); // 绑定 activity_main.xml
 
+        setupActivityResultLaunchers();
+
         // 启动回收站自动清理任务（每天执行一次）
         scheduleTrashCleanupWork();
 
@@ -116,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 // 普通模式下，点击进入编辑页面
                 Intent intent = new Intent(MainActivity.this, EditNoteActivity.class);
                 intent.putExtra("NOTE_ID", note.id);
-                startActivityForResult(intent, REQUEST_EDIT_NOTE);
+                editNoteLauncher.launch(intent);
             }
         });
 
@@ -174,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         fabAdd = findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
-            startActivityForResult(intent, REQUEST_ADD_NOTE);
+            addNoteLauncher.launch(intent);
         });
 
         // 删除按钮
@@ -187,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         buttonCategory = findViewById(R.id.buttonCategory);
         buttonCategory.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, CategoryActivity.class);
-            startActivityForResult(intent, REQUEST_CATEGORY);
+            categoryLauncher.launch(intent);
         });
 
         // 设置按钮
@@ -220,8 +225,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void scheduleTrashCleanupWork() {
         PeriodicWorkRequest workRequest =
-                new PeriodicWorkRequest.Builder(TrashCleanupWorker.class,
-                        java.time.Duration.ofDays(1))
+                new PeriodicWorkRequest.Builder(
+                        TrashCleanupWorker.class,
+                        1, java.util.concurrent.TimeUnit.DAYS   // ✅ API 21 可用
+                )
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -230,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 workRequest
         );
     }
+
 
     /**
      * 进入多选模式
@@ -322,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 跳转到分类选择页面
         Intent intent = new Intent(MainActivity.this, CategoryActivity.class);
-        startActivityForResult(intent, REQUEST_MOVE_TO_CATEGORY);
+        moveToCategoryLauncher.launch(intent);
     }
 
     /**
@@ -364,32 +372,60 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
-        if (requestCode == REQUEST_ADD_NOTE && resultCode == RESULT_OK) {
-            // 从添加笔记页面返回，强制刷新列表
+    private void setupActivityResultLaunchers() {
+        addNoteLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> handleAddNoteResult(result)
+        );
+
+        editNoteLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> handleEditNoteResult(result)
+        );
+
+        categoryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> handleCategoryResult(result)
+        );
+
+        moveToCategoryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> handleMoveToCategoryResult(result)
+        );
+    }
+
+    private void handleAddNoteResult(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK) {
             Log.d(TAG, "从添加笔记页面返回，准备刷新列表");
             refreshNoteList();
-        } else if (requestCode == REQUEST_EDIT_NOTE && resultCode == RESULT_OK) {
-            // 从编辑笔记页面返回，强制刷新列表
+        }
+    }
+
+    private void handleEditNoteResult(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK) {
             Log.d(TAG, "从编辑笔记页面返回，准备刷新列表");
             refreshNoteList();
-        } else if (requestCode == REQUEST_CATEGORY && resultCode == RESULT_OK && data != null) {
-            // 从分类页面返回，获取选中的分类
+        }
+    }
+
+    private void handleCategoryResult(ActivityResult result) {
+        Intent data = result.getData();
+        if (result.getResultCode() == RESULT_OK && data != null) {
             int categoryId = data.getIntExtra("CATEGORY_ID", -1);
             String categoryName = data.getStringExtra("CATEGORY_NAME");
             Log.d(TAG, "选中分类: " + categoryName + " (ID: " + categoryId + ")");
 
             currentCategoryId = categoryId;
             filterNotesByCategory(categoryId);
-        } else if (requestCode == REQUEST_MOVE_TO_CATEGORY && resultCode == RESULT_OK && data != null) {
-            // 从移动到分类页面返回
+        }
+    }
+
+    private void handleMoveToCategoryResult(ActivityResult result) {
+        Intent data = result.getData();
+        if (result.getResultCode() == RESULT_OK && data != null) {
             int categoryId = data.getIntExtra("CATEGORY_ID", -1);
             String categoryName = data.getStringExtra("CATEGORY_NAME");
 
-            // 移动选中的笔记到指定分类
             List<Note> selectedNotes = adapter.getSelectedNotes();
             new Thread(() -> {
                 for (Note note : selectedNotes) {
@@ -399,7 +435,6 @@ public class MainActivity extends AppCompatActivity {
 
                 runOnUiThread(() -> {
                     Toast.makeText(this, "已成功移动到 \"" + categoryName + "\"", Toast.LENGTH_SHORT).show();
-                    // 这里你原来的代码缺失了括号和分号，我已经补全
                     exitMultiSelectMode();
                 });
             }).start();

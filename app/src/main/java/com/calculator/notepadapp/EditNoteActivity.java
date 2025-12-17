@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.calculator.notepadapp.dao.CategoryDao;
 import com.calculator.notepadapp.dao.NoteDao;
@@ -42,6 +43,7 @@ public class EditNoteActivity extends AppCompatActivity {
     private Spinner spinnerCategory;
     private NoteDao noteDao;
     private CategoryDao categoryDao;
+    private DatabaseViewModel dbViewModel;
     private Note currentNote;
     private int noteId;
     private String originalTitle; // 保存原始标题，用于检查是否修改
@@ -88,6 +90,7 @@ public class EditNoteActivity extends AppCompatActivity {
         NoteDatabase database = NoteDatabase.getInstance(this);
         noteDao = database.noteDao();
         categoryDao = database.categoryDao();
+        dbViewModel = new ViewModelProvider(this).get(DatabaseViewModel.class);
 
         // 获取传递过来的笔记ID
         noteId = getIntent().getIntExtra("NOTE_ID", -1);
@@ -428,7 +431,7 @@ public class EditNoteActivity extends AppCompatActivity {
      * 加载笔记数据
      */
     private void loadNoteData() {
-        new Thread(() -> {
+        dbViewModel.execute(() -> {
             try {
                 currentNote = noteDao.getNoteById(noteId);
 
@@ -475,7 +478,7 @@ public class EditNoteActivity extends AppCompatActivity {
                     finish();
                 });
             }
-        }).start();
+        });
     }
 
     /**
@@ -496,7 +499,7 @@ public class EditNoteActivity extends AppCompatActivity {
 
         Log.d(TAG, "开始保存笔记，标题: " + title);
 
-        new Thread(() -> {
+        dbViewModel.execute(() -> {
             try {
                 // 只有当用户输入了标题且标题被修改时才检查同名
                 if (!TextUtils.isEmpty(title) && !title.equals(originalTitle)) {
@@ -568,7 +571,7 @@ public class EditNoteActivity extends AppCompatActivity {
                     buttonSave.setEnabled(true);
                 });
             }
-        }).start();
+        });
     }
 
     /**
@@ -597,7 +600,7 @@ public class EditNoteActivity extends AppCompatActivity {
      * 删除笔记
      */
     private void deleteNote() {
-        new Thread(() -> {
+        dbViewModel.execute(() -> {
             try {
                 noteDao.delete(currentNote);
                 Log.d(TAG, "笔记删除成功");
@@ -615,7 +618,7 @@ public class EditNoteActivity extends AppCompatActivity {
                     Toast.makeText(this, "删除失败", Toast.LENGTH_SHORT).show();
                 });
             }
-        }).start();
+        });
     }
 
     /**
