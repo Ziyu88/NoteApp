@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.calculator.notepadapp.dao.CategoryDao;
 import com.calculator.notepadapp.dao.NoteDao;
@@ -38,6 +39,7 @@ public class AddNoteActivity extends AppCompatActivity {
     private Spinner spinnerCategory;
     private NoteDao noteDao;
     private CategoryDao categoryDao;
+    private DatabaseViewModel dbViewModel;
     private List<Category> categoryList = new ArrayList<>();
     private int selectedCategoryId = 0; // 默认未分类
 
@@ -83,6 +85,7 @@ public class AddNoteActivity extends AppCompatActivity {
         NoteDatabase database = NoteDatabase.getInstance(this);
         noteDao = database.noteDao();
         categoryDao = database.categoryDao();
+        dbViewModel = new ViewModelProvider(this).get(DatabaseViewModel.class);
 
         // 加载分类列表
         loadCategories();
@@ -325,7 +328,7 @@ public class AddNoteActivity extends AppCompatActivity {
         Log.d(TAG, "开始保存笔记，标题: " + title);
 
         // Room 数据库不允许在主线程中进行写操作，需要新线程
-        new Thread(() -> {
+        dbViewModel.execute(() -> {
             try {
                 // 只有当用户输入了标题时才检查同名
                 if (!TextUtils.isEmpty(title)) {
@@ -392,7 +395,7 @@ public class AddNoteActivity extends AppCompatActivity {
                     buttonSave.setEnabled(true);
                 });
             }
-        }).start();
+        });
     }
 
     /**

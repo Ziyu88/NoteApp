@@ -50,6 +50,11 @@ dependencies {
     // LiveData 和 ViewModel
     implementation("androidx.lifecycle:lifecycle-livedata:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+
+    // 协程（LifecycleScope 需要）
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
 
     // SwipeRefreshLayout 下拉刷新
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
