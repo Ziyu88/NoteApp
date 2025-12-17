@@ -11,6 +11,7 @@ import com.calculator.notepadapp.dao.NoteDao;
 import com.calculator.notepadapp.model.Note;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * 笔记删除管理类
@@ -20,10 +21,12 @@ public class NoteDeleteManager {
 
     private Context context;
     private NoteDao noteDao;
+    private ExecutorService executor;
 
-    public NoteDeleteManager(Context context, NoteDao noteDao) {
+    public NoteDeleteManager(Context context, NoteDao noteDao, ExecutorService executor) {
         this.context = context;
         this.noteDao = noteDao;
+        this.executor = executor;
     }
 
     /**
@@ -39,7 +42,7 @@ public class NoteDeleteManager {
                 .setMessage("确定要删除笔记 \"" + note.title + "\" 吗？")
                 .setPositiveButton("确认删除", (dialogInterface, which) -> {
                     // 在后台线程执行删除操作（软删除，进入回收站）
-                    new Thread(() -> {
+                    executor.execute(() -> {
                         note.isDeleted = true;
                         note.deletedAt = System.currentTimeMillis();
                         noteDao.update(note);
@@ -52,7 +55,7 @@ public class NoteDeleteManager {
                                 }
                             });
                         }
-                    }).start();
+                    });
                 })
                 .setNegativeButton("取消", (dialogInterface, which) -> {
                     // 取消删除，恢复item位置
@@ -79,7 +82,7 @@ public class NoteDeleteManager {
             return;
         }
 
-        new Thread(() -> {
+        executor.execute(() -> {
             note.isDeleted = true;
             note.deletedAt = System.currentTimeMillis();
             noteDao.update(note);
@@ -91,7 +94,7 @@ public class NoteDeleteManager {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     /**
@@ -109,7 +112,7 @@ public class NoteDeleteManager {
                 .setMessage("确定要删除选中的 " + count + " 条笔记吗？")
                 .setPositiveButton("确认删除", (dialogInterface, which) -> {
                     // 在后台线程执行批量删除（软删除，进入回收站）
-                    new Thread(() -> {
+                    executor.execute(() -> {
                         for (Note note : notes) {
                             note.isDeleted = true;
                             note.deletedAt = System.currentTimeMillis();
@@ -124,7 +127,7 @@ public class NoteDeleteManager {
                                 }
                             });
                         }
-                    }).start();
+                    });
                 })
                 .setNegativeButton("取消", null)
                 .create();
