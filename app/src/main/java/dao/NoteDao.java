@@ -1,14 +1,21 @@
-package com.calculator.notepadapp.dao;
+package dao;
 
+import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
-import androidx.room.*;
+
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
 import com.calculator.notepadapp.model.Note;
 import java.util.List;
 
 @Dao
 public interface NoteDao {
-    @Insert
-    void insert(Note note);
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    long insertNote(Note note);
 
     @Update
     void update(Note note);
@@ -16,8 +23,6 @@ public interface NoteDao {
     @Delete
     void delete(Note note);
 
-    @Insert
-    void insertNote(Note note);
 
     @Query("SELECT * FROM Note WHERE isDeleted = 0 ORDER BY isPinned DESC, updatedAt DESC")
     LiveData<List<Note>> getAllNotes();
@@ -25,9 +30,10 @@ public interface NoteDao {
     @Query("SELECT * FROM Note WHERE (title LIKE :search OR content LIKE :search) AND isDeleted = 0 ORDER BY isPinned DESC, updatedAt DESC")
     LiveData<List<Note>> searchNotes(String search);
 
-    @Query("SELECT * FROM Note WHERE id = :id")
+    @WorkerThread
+    @Query("SELECT * FROM Note WHERE id = :id LIMIT 1")
     Note getNoteById(int id);
-
+    @WorkerThread
     @Query("SELECT COUNT(*) FROM Note WHERE title = :title AND isDeleted = 0")
     int countNotesByTitle(String title);
 
@@ -37,11 +43,13 @@ public interface NoteDao {
     @Query("SELECT COUNT(*) FROM Note WHERE categoryId = :categoryId AND isDeleted = 0")
     int countNotesByCategory(int categoryId);
 
+    @WorkerThread
     @Query("SELECT COUNT(*) FROM Note WHERE isDeleted = 0")
     int countAllNotes();
 
     // 物理删除已在回收站中超过指定时间的笔记
+    @WorkerThread
     @Query("DELETE FROM Note WHERE isDeleted = 1 AND deletedAt > 0 AND deletedAt < :threshold")
-    void deleteExpiredDeletedNotes(long threshold);
+    int deleteExpiredDeletedNotes(long threshold);
 
 }
