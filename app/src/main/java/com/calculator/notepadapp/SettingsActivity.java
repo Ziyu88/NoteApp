@@ -1,6 +1,7 @@
 package com.calculator.notepadapp;
 
 import android.os.Bundle;
+import android.content.Intent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -70,6 +71,12 @@ public class SettingsActivity extends AppCompatActivity {
         LinearLayout optionSystemMode = findViewById(R.id.optionSystemMode);
         optionSystemMode.setOnClickListener(v -> {
             applyThemeMode(ThemeHelper.MODE_SYSTEM);
+        });
+
+        LinearLayout optionTrash = findViewById(R.id.optionTrash);
+        optionTrash.setOnClickListener(v -> {
+            Intent intent = new Intent(SettingsActivity.this, TrashActivity.class);
+            startActivity(intent);
         });
     }
 

@@ -23,6 +23,8 @@ public interface NoteDao {
     @Delete
     void delete(Note note);
 
+    @Query("DELETE FROM Note WHERE id = :id")
+    void deleteById(int id);
 
     @Query("SELECT * FROM Note WHERE isDeleted = 0 ORDER BY isPinned DESC, updatedAt DESC")
     LiveData<List<Note>> getAllNotes();
@@ -38,14 +40,18 @@ public interface NoteDao {
     int countNotesByTitle(String title);
 
     @Query("SELECT * FROM Note WHERE categoryId = :categoryId AND isDeleted = 0 ORDER BY isPinned DESC, updatedAt DESC")
-    LiveData<List<Note>> getNotesByCategory(int categoryId);
-
     @Query("SELECT COUNT(*) FROM Note WHERE categoryId = :categoryId AND isDeleted = 0")
     int countNotesByCategory(int categoryId);
 
     @WorkerThread
     @Query("SELECT COUNT(*) FROM Note WHERE isDeleted = 0")
     int countAllNotes();
+
+    @Query("SELECT * FROM Note WHERE isDeleted = 1 ORDER BY deletedAt DESC")
+    LiveData<List<Note>> getDeletedNotes();
+
+    @Query("UPDATE Note SET isDeleted = 0, deletedAt = 0 WHERE id = :id")
+    void restoreNoteById(int id);
 
     // 物理删除已在回收站中超过指定时间的笔记
     @WorkerThread
