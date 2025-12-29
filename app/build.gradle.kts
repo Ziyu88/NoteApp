@@ -41,8 +41,11 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // Room 数据库
-    implementation("androidx.room:room-runtime:2.6.0")
-    annotationProcessor("androidx.room:room-compiler:2.6.0")
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+
+    // Align Kotlin stdlib/transitive Kotlin deps used by AndroidX libraries
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
 
     // LiveData 和 ViewModel
     implementation("androidx.lifecycle:lifecycle-livedata:2.6.2")
