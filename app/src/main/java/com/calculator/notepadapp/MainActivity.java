@@ -351,7 +351,9 @@ public class MainActivity extends AppCompatActivity {
                     // 直接执行删除，不再弹出第二个对话框
                     new Thread(() -> {
                         for (Note note : selectedNotes) {
-                            noteDatabase.noteDao().delete(note);
+                            note.isDeleted = true;
+                            note.deletedAt = System.currentTimeMillis();
+                            noteDatabase.noteDao().update(note);
                         }
 
                         runOnUiThread(() -> {

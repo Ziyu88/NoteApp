@@ -602,7 +602,9 @@ public class EditNoteActivity extends AppCompatActivity {
     private void deleteNote() {
         dbViewModel.execute(() -> {
             try {
-                noteDao.delete(currentNote);
+                currentNote.isDeleted = true;
+                currentNote.deletedAt = System.currentTimeMillis();
+                noteDao.update(currentNote);
                 Log.d(TAG, "笔记删除成功");
 
                 runOnUiThread(() -> {
