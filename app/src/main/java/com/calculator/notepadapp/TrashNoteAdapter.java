@@ -7,44 +7,24 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.calculator.notepadapp.R;
 import com.calculator.notepadapp.model.Note;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
-public class TrashNoteAdapter extends ListAdapter<Note, TrashNoteAdapter.TrashViewHolder> {
+public class TrashNoteAdapter extends RecyclerView.Adapter<TrashNoteAdapter.TrashViewHolder> {
 
+    private List<Note> noteList;
     private OnTrashActionListener actionListener;
 
-    private static final DateFormat DATE_FORMAT =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-
-    private static final DiffUtil.ItemCallback<Note> DIFF_CALLBACK =
-            new DiffUtil.ItemCallback<Note>() {
-                @Override
-                public boolean areItemsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
-                    return oldItem.id == newItem.id;
-                }
-
-                @Override
-                public boolean areContentsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
-                    return Objects.equals(oldItem.title, newItem.title)
-                            && Objects.equals(oldItem.content, newItem.content)
-                            && oldItem.deletedAt == newItem.deletedAt;
-                }
-            };
-
-    public TrashNoteAdapter() {
-        super(DIFF_CALLBACK);
+    public void setNoteList(List<Note> notes) {
+        this.noteList = notes;
+        notifyDataSetChanged();
     }
 
     public void setOnTrashActionListener(OnTrashActionListener listener) {
@@ -60,8 +40,25 @@ public class TrashNoteAdapter extends ListAdapter<Note, TrashNoteAdapter.TrashVi
 
     @Override
     public void onBindViewHolder(@NonNull TrashViewHolder holder, int position) {
-        Note note = getItem(position);
-        holder.bind(note, actionListener);
+        Note note = noteList.get(position);
+        holder.bind(note);
+
+        holder.buttonRestore.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onRestore(note);
+            }
+        });
+
+        holder.buttonDeleteForever.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onDeleteForever(note);
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return noteList == null ? 0 : noteList.size();
     }
 
     static class TrashViewHolder extends RecyclerView.ViewHolder {
@@ -80,7 +77,7 @@ public class TrashNoteAdapter extends ListAdapter<Note, TrashNoteAdapter.TrashVi
             buttonDeleteForever = itemView.findViewById(R.id.buttonDeleteForever);
         }
 
-        void bind(Note note, @Nullable OnTrashActionListener actionListener) {
+        void bind(Note note) {
             String titleText = (note.title != null && !note.title.trim().isEmpty()) ? note.title : "无标题";
             title.setText(titleText);
 
@@ -91,23 +88,13 @@ public class TrashNoteAdapter extends ListAdapter<Note, TrashNoteAdapter.TrashVi
                 content.setText("");
                 content.setVisibility(View.GONE);
             }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             if (note.deletedAt > 0) {
-                deletedAt.setText("删除时间：" + DATE_FORMAT.format(new Date(note.deletedAt)));
+                deletedAt.setText("删除时间：" + sdf.format(new Date(note.deletedAt)));
             } else {
                 deletedAt.setText("删除时间：未知");
             }
-
-            buttonRestore.setOnClickListener(v -> {
-                if (actionListener != null && getBindingAdapterPosition() != RecyclerView.NO_POSITION) {
-                    actionListener.onRestore(note);
-                }
-            });
-
-            buttonDeleteForever.setOnClickListener(v -> {
-                if (actionListener != null && getBindingAdapterPosition() != RecyclerView.NO_POSITION) {
-                    actionListener.onDeleteForever(note);
-                }
-            });
         }
     }
 
