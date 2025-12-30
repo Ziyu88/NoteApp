@@ -32,6 +32,12 @@ public interface NoteDao {
     @Query("SELECT * FROM Note WHERE (title LIKE :search OR content LIKE :search) AND isDeleted = 0 ORDER BY isPinned DESC, updatedAt DESC")
     LiveData<List<Note>> searchNotes(String search);
 
+    @Query("SELECT * FROM Note WHERE isDeleted = 1 ORDER BY deletedAt DESC")
+    LiveData<List<Note>> getDeletedNotes();
+
+    @Query("UPDATE Note SET isDeleted = 0, deletedAt = 0 WHERE id = :id")
+    void restoreNoteById(int id);
+
     @WorkerThread
     @Query("SELECT * FROM Note WHERE id = :id LIMIT 1")
     Note getNoteById(int id);

@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.calculator.notepadapp.adapter.TrashNoteAdapter;
 import com.calculator.notepadapp.model.Note;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,8 +55,9 @@ public class TrashActivity extends AppCompatActivity {
         });
 
         noteDatabase.noteDao().getDeletedNotes().observe(this, notes -> {
-            adapter.setNoteList(notes);
-            boolean isEmpty = notes == null || notes.isEmpty();
+            List<Note> noteList = coerceNoteList(notes);
+            adapter.setNoteList(noteList);
+            boolean isEmpty = noteList.isEmpty();
             textEmpty.setVisibility(isEmpty ? TextView.VISIBLE : TextView.GONE);
         });
     }
@@ -91,5 +94,18 @@ public class TrashActivity extends AppCompatActivity {
             noteDatabase.noteDao().deleteById(note.id);
             runOnUiThread(() -> Toast.makeText(this, "已彻底删除", Toast.LENGTH_SHORT).show());
         });
+    }
+    private List<Note> coerceNoteList(Object notes) {
+        if (notes instanceof List<?>) {
+            List<?> rawList = (List<?>) notes;
+            List<Note> result = new ArrayList<>(rawList.size());
+            for (Object item : rawList) {
+                if (item instanceof Note) {
+                    result.add((Note) item);
+                }
+            }
+            return result;
+        }
+        return new ArrayList<>();
     }
 }
