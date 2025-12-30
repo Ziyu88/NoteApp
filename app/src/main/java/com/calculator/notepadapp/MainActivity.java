@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateSelectedCount() {
         int count = adapter.getSelectedCount();
-        textSelectedCount.setText("已选择 " + count + " 项");
+        textSelectedCount.setText(getString(R.string.selected_count, count));
     }
 
     /**

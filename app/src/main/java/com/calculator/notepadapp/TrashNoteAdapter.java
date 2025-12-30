@@ -23,8 +23,26 @@ public class TrashNoteAdapter extends RecyclerView.Adapter<TrashNoteAdapter.Tras
     private OnTrashActionListener actionListener;
 
     public void setNoteList(List<Note> notes) {
+        int oldSize = noteList == null ? 0 : noteList.size();
         this.noteList = notes;
-        notifyDataSetChanged();
+        int newSize = noteList == null ? 0 : noteList.size();
+        if (oldSize == 0) {
+            if (newSize > 0) {
+                notifyItemRangeInserted(0, newSize);
+            }
+            return;
+        }
+        if (newSize == 0) {
+            notifyItemRangeRemoved(0, oldSize);
+            return;
+        }
+        int minSize = Math.min(oldSize, newSize);
+        notifyItemRangeChanged(0, minSize);
+        if (newSize > oldSize) {
+            notifyItemRangeInserted(oldSize, newSize - oldSize);
+        } else if (oldSize > newSize) {
+            notifyItemRangeRemoved(newSize, oldSize - newSize);
+        }
     }
 
     public void setOnTrashActionListener(OnTrashActionListener listener) {
@@ -78,7 +96,9 @@ public class TrashNoteAdapter extends RecyclerView.Adapter<TrashNoteAdapter.Tras
         }
 
         void bind(Note note) {
-            String titleText = (note.title != null && !note.title.trim().isEmpty()) ? note.title : "无标题";
+            String titleText = (note.title != null && !note.title.trim().isEmpty())
+                    ? note.title
+                    : itemView.getContext().getString(R.string.note_title_fallback);
             title.setText(titleText);
 
             if (note.content != null && !note.content.trim().isEmpty()) {
@@ -91,9 +111,12 @@ public class TrashNoteAdapter extends RecyclerView.Adapter<TrashNoteAdapter.Tras
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             if (note.deletedAt > 0) {
-                deletedAt.setText("删除时间：" + sdf.format(new Date(note.deletedAt)));
+                deletedAt.setText(itemView.getContext().getString(
+                        R.string.trash_deleted_time,
+                        sdf.format(new Date(note.deletedAt))
+                ));
             } else {
-                deletedAt.setText("删除时间：未知");
+                deletedAt.setText(itemView.getContext().getString(R.string.trash_deleted_time_unknown));
             }
         }
     }

@@ -98,6 +98,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void updateCurrentThemeText(int mode) {
         String themeName = ThemeHelper.getThemeModeName(mode);
-        textCurrentTheme.setText("当前主题：" + themeName);
+        textCurrentTheme.setText(getString(R.string.current_theme, themeName));
     }
 }
