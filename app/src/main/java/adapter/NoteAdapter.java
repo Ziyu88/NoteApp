@@ -231,6 +231,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
                         // 只有水平滑动距离超过10px且大于垂直滑动时，才认为是滑动
                         if (totalDeltaX > 10 && totalDeltaX > totalDeltaY) {
                             isSwiping = true;
+                            // 开始滑动时取消长按，避免误触发多选模式
+                            foregroundLayout.cancelLongPress();
+                            foregroundLayout.getParent().requestDisallowInterceptTouchEvent(true);
                         }
 
                         // 如果正在滑动，处理滑动逻辑
