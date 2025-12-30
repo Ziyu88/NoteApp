@@ -13,13 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.calculator.notepadapp.adapter.TrashNoteAdapter;
 import com.calculator.notepadapp.model.Note;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TrashActivity extends AppCompatActivity {
-
     private NoteDatabase noteDatabase;
     private TrashNoteAdapter adapter;
     private TextView textEmpty;
@@ -28,16 +26,17 @@ public class TrashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeHelper.applyTheme(this);
         setContentView(R.layout.activity_trash);
 
         noteDatabase = NoteDatabase.getInstance(this);
 
         ImageButton buttonBack = findViewById(R.id.buttonTrashBack);
         buttonBack.setOnClickListener(v -> finish());
-
         textEmpty = findViewById(R.id.textTrashEmpty);
         RecyclerView recyclerView = findViewById(R.id.recyclerViewTrash);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
 
         adapter = new TrashNoteAdapter();
         recyclerView.setAdapter(adapter);
@@ -55,19 +54,12 @@ public class TrashActivity extends AppCompatActivity {
         });
 
         noteDatabase.noteDao().getDeletedNotes().observe(this, notes -> {
-            adapter.submitList(notes);
-            List<Note> noteList = coerceNoteList(notes);
+            List<Note> noteList = notes == null ? java.util.Collections.emptyList() : notes;
             adapter.setNoteList(noteList);
             boolean isEmpty = noteList.isEmpty();
             textEmpty.setVisibility(isEmpty ? TextView.VISIBLE : TextView.GONE);
         });
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        executor.shutdown();
-    }
-
     private void confirmRestore(Note note) {
         String title = (note.title != null && !note.title.trim().isEmpty()) ? note.title : "无标题";
         new AlertDialog.Builder(this)
@@ -77,11 +69,10 @@ public class TrashActivity extends AppCompatActivity {
                 .setNegativeButton("取消", null)
                 .show();
     }
-
     private void restoreNote(Note note) {
         executor.execute(() -> {
             noteDatabase.noteDao().restoreNoteById(note.id);
-            runOnUiThread(() -> Toast.makeText(this, "已恢复", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> showToastIfActive("已恢复"));
         });
     }
 
@@ -98,20 +89,20 @@ public class TrashActivity extends AppCompatActivity {
     private void deleteForever(Note note) {
         executor.execute(() -> {
             noteDatabase.noteDao().deleteById(note.id);
-            runOnUiThread(() -> Toast.makeText(this, "已彻底删除", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> showToastIfActive("已彻底删除"));
         });
     }
-    private List<Note> coerceNoteList(Object notes) {
-        if (notes instanceof List<?>) {
-            List<?> rawList = (List<?>) notes;
-            List<Note> result = new ArrayList<>(rawList.size());
-            for (Object item : rawList) {
-                if (item instanceof Note) {
-                    result.add((Note) item);
-                }
-            }
-            return result;
+
+    private void showToastIfActive(String message) {
+        if (isFinishing() || isDestroyed()) {
+            return;
         }
-        return new ArrayList<>();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
     }
 }

@@ -354,6 +354,7 @@ public class AddNoteActivity extends AppCompatActivity {
                 Note note = new Note();
                 note.setTitle(title);
                 note.setContent(content);
+                note.setCreatedAt(currentTime);
                 note.setUpdatedAt(currentTime);
                 note.setDeleted(false);
                 note.setPinned(false);

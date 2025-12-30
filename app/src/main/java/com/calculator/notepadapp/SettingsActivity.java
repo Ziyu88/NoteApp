@@ -24,6 +24,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeHelper.applyTheme(this);
         setContentView(R.layout.activity_settings);
 
         // 初始化控件
@@ -100,4 +101,3 @@ public class SettingsActivity extends AppCompatActivity {
         textCurrentTheme.setText("当前主题：" + themeName);
     }
 }
-
