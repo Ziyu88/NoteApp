@@ -32,19 +32,15 @@ android {
 }
 
 dependencies {
-
+    // AndroidX 依赖
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
-    implementation(libs.room.common.jvm)
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // Room 数据库
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
 
-    // Align Kotlin stdlib/transitive Kotlin deps used by AndroidX libraries
+    // Kotlin 相关依赖
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
 
     // LiveData 和 ViewModel
@@ -54,10 +50,14 @@ dependencies {
     // SwipeRefreshLayout 下拉刷新
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
-    // 添加这行来解决问题
+    // WorkManager
     implementation("androidx.work:work-runtime:2.9.0")
 
     // Kotlin Metadata 版本对齐，避免编译期 Metadata 版本冲突
     implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
-    annotationProcessor("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
+
+    // 测试依赖
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
