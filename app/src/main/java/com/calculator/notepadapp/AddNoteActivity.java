@@ -37,7 +37,7 @@ public class AddNoteActivity extends AppCompatActivity {
     private Button buttonSave;
     private ImageButton buttonBack, buttonUndo, buttonRedo, buttonConfirm;
     private Spinner spinnerCategory;
-    private com.calculator.notepadapp.NoteDao noteDao;
+    private NoteDao noteDao;
     private CategoryDao categoryDao;
     private DatabaseViewModel dbViewModel;
     private List<Category> categoryList = new ArrayList<>();
@@ -332,7 +332,7 @@ public class AddNoteActivity extends AppCompatActivity {
             try {
                 // 只有当用户输入了标题时才检查同名
                 if (!TextUtils.isEmpty(title)) {
-                    int count = noteDao.countNotesByTitle(title);
+                    long count = noteDao.countNotesByTitle(title);  // 修改为 long 类型
                     Log.d(TAG, "同名笔记数量: " + count);
 
                     if (count > 0) {

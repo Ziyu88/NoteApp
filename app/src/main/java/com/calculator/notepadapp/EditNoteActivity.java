@@ -504,7 +504,7 @@ public class EditNoteActivity extends AppCompatActivity {
                 // 只有当用户输入了标题且标题被修改时才检查同名
                 if (!TextUtils.isEmpty(title) && !title.equals(originalTitle)) {
                     // 标题被修改了，需要检查是否与其他笔记重名
-                    int count = noteDao.countNotesByTitle(title);
+                    int count = Math.toIntExact(noteDao.countNotesByTitle(title));
                     Log.d(TAG, "同名笔记数量: " + count);
 
                     if (count > 0) {
@@ -602,7 +602,9 @@ public class EditNoteActivity extends AppCompatActivity {
     private void deleteNote() {
         dbViewModel.execute(() -> {
             try {
-                noteDao.delete(currentNote);
+                currentNote.isDeleted = true;
+                currentNote.deletedAt = System.currentTimeMillis();
+                noteDao.update(currentNote);
                 Log.d(TAG, "笔记删除成功");
 
                 runOnUiThread(() -> {

@@ -114,14 +114,14 @@ public class CategoryActivity extends AppCompatActivity {
                     
                     // 计算每个分类的笔记数量
                     new Thread(() -> {
-                        List<Integer> counts = new ArrayList<>();
+                        List<Long> counts = new ArrayList<>();
                         for (Category category : allCategories) {
-                            int count;
+                            Long count;
                             if (category.id == -1) {
                                 // 全部笔记
                                 count = noteDao.countAllNotes();
                             } else {
-                                count = noteDao.countNotesByCategory(category.id);
+                                count = Long.valueOf(noteDao.countNotesByCategory(category.id));
                             }
                             counts.add(count);
                         }
