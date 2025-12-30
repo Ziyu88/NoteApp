@@ -5,7 +5,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +32,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
 
     private List<Note> noteList;
     private boolean isMultiSelectMode = false;
-    private Set<Integer> selectedPositions = new HashSet<>();
+    private final Set<Integer> selectedPositions = new HashSet<>();
     private OnItemClickListener itemClickListener;
     private OnItemLongClickListener itemLongClickListener;
     private OnDeleteClickListener deleteClickListener;
@@ -41,8 +40,26 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     private String highlightQuery = "";
 
     public void setNoteList(List<Note> notes) {
+        int oldSize = noteList == null ? 0 : noteList.size();
         this.noteList = notes;
-        notifyDataSetChanged();
+        int newSize = noteList == null ? 0 : noteList.size();
+        if (oldSize == 0) {
+            if (newSize > 0) {
+                notifyItemRangeInserted(0, newSize);
+            }
+            return;
+        }
+        if (newSize == 0) {
+            notifyItemRangeRemoved(0, oldSize);
+            return;
+        }
+        int minSize = Math.min(oldSize, newSize);
+        notifyItemRangeChanged(0, minSize);
+        if (newSize > oldSize) {
+            notifyItemRangeInserted(oldSize, newSize - oldSize);
+        } else if (oldSize > newSize) {
+            notifyItemRangeRemoved(newSize, oldSize - newSize);
+        }
     }
 
     /**
@@ -53,9 +70,11 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             query = "";
         }
         this.highlightQuery = query.trim();
-        notifyDataSetChanged();
+        int itemCount = getItemCount();
+        if (itemCount > 0) {
+            notifyItemRangeChanged(0, itemCount);
+        }
     }
-
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.itemClickListener = listener;
     }
@@ -68,15 +87,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         this.deleteClickListener = listener;
     }
 
-    /**
-     * 获取指定位置的笔记
-     */
-    public Note getNoteAt(int position) {
-        if (noteList != null && position >= 0 && position < noteList.size()) {
-            return noteList.get(position);
-        }
-        return null;
-    }
 
     /**
      * 进入多选模式
@@ -84,7 +94,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     public void enterMultiSelectMode() {
         isMultiSelectMode = true;
         selectedPositions.clear();
-        notifyDataSetChanged();
+        int itemCount = getItemCount();
+        if (itemCount > 0) {
+            notifyItemRangeChanged(0, itemCount);
+        }
     }
 
     /**
@@ -93,7 +106,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     public void exitMultiSelectMode() {
         isMultiSelectMode = false;
         selectedPositions.clear();
-        notifyDataSetChanged();
+        int itemCount = getItemCount();
+        if (itemCount > 0) {
+            notifyItemRangeChanged(0, itemCount);
+        }
     }
 
     /**
@@ -140,7 +156,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         CheckBox checkBox;
         View foregroundLayout;
         FrameLayout deleteButton;
-        private float initialX = 0;
         private boolean isSwiping = false;
 
         public NoteViewHolder(@NonNull View itemView) {
@@ -156,7 +171,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
 
         public void bind(Note note, boolean isMultiSelectMode, boolean isSelected, String highlightQuery) {
             // 标题：为空时显示“无标题”
-            String titleText = (note.title != null && !note.title.trim().isEmpty()) ? note.title : "无标题";
+            String titleText = (note.title != null && !note.title.trim().isEmpty())
+                    ? note.title
+                    : itemView.getContext().getString(R.string.note_title_fallback);
             setHighlightedText(title, titleText, highlightQuery);
 
             // 内容预览：最多两行，item布局已做ellipsize
@@ -182,7 +199,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             if (note.content != null) {
                 totalWords += note.content.length();
             }
-            wordCount.setText(totalWords + "字");
+            wordCount.setText(itemView.getContext().getString(R.string.note_word_count, totalWords));
 
             // 显示或隐藏复选框
             if (checkBox != null) {
@@ -265,6 +282,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
                             if (itemClickListener != null) {
                                 itemClickListener.onItemClick(note, position);
                             }
+                            v.performClick();
                             return true;
                         }
 

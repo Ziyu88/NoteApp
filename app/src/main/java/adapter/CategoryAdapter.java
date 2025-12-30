@@ -23,9 +23,27 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private int selectedCategoryId = -1; // 当前选中的分类ID
 
     public void setCategoryList(List<Category> categories, List<Long> counts) {
+        int oldSize = categoryList.size();
         this.categoryList = categories;
         this.noteCounts = counts;
-        notifyDataSetChanged();
+        int newSize = categoryList.size();
+        if (oldSize == 0) {
+            if (newSize > 0) {
+                notifyItemRangeInserted(0, newSize);
+            }
+            return;
+        }
+        if (newSize == 0) {
+            notifyItemRangeRemoved(0, oldSize);
+            return;
+        }
+        int minSize = Math.min(oldSize, newSize);
+        notifyItemRangeChanged(0, minSize);
+        if (newSize > oldSize) {
+            notifyItemRangeInserted(oldSize, newSize - oldSize);
+        } else if (oldSize > newSize) {
+            notifyItemRangeRemoved(newSize, oldSize - newSize);
+        }
     }
 
     public void setOnCategoryClickListener(OnCategoryClickListener listener) {
@@ -33,8 +51,18 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     }
 
     public void setSelectedCategoryId(int categoryId) {
+        if (this.selectedCategoryId == categoryId) {
+            return;
+        }
+        int previousPosition = findCategoryPositionById(this.selectedCategoryId);
         this.selectedCategoryId = categoryId;
-        notifyDataSetChanged();
+        int currentPosition = findCategoryPositionById(categoryId);
+        if (previousPosition >= 0) {
+            notifyItemChanged(previousPosition);
+        }
+        if (currentPosition >= 0) {
+            notifyItemChanged(currentPosition);
+        }
     }
 
     @NonNull
@@ -70,6 +98,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     @Override
     public int getItemCount() {
         return categoryList.size();
+    }
+
+    private int findCategoryPositionById(int categoryId) {
+        for (int index = 0; index < categoryList.size(); index++) {
+            if (categoryList.get(index).id == categoryId) {
+                return index;
+            }
+        }
+        return -1;
     }
 
     public static class CategoryViewHolder extends RecyclerView.ViewHolder {
