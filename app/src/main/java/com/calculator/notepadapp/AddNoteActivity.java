@@ -332,7 +332,7 @@ public class AddNoteActivity extends AppCompatActivity {
             try {
                 // 只有当用户输入了标题时才检查同名
                 if (!TextUtils.isEmpty(title)) {
-                    int count = noteDao.countNotesByTitle(title);
+                    long count = noteDao.countNotesByTitle(title);  // 修改为 long 类型
                     Log.d(TAG, "同名笔记数量: " + count);
 
                     if (count > 0) {
