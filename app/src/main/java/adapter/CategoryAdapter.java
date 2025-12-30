@@ -18,11 +18,11 @@ import java.util.List;
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
     private List<Category> categoryList = new ArrayList<>();
-    private List<Integer> noteCounts = new ArrayList<>();
+    private List<Long> noteCounts = new ArrayList<>();
     private OnCategoryClickListener clickListener;
     private int selectedCategoryId = -1; // 当前选中的分类ID
 
-    public void setCategoryList(List<Category> categories, List<Integer> counts) {
+    public void setCategoryList(List<Category> categories, List<Long> counts) {
         this.categoryList = categories;
         this.noteCounts = counts;
         notifyDataSetChanged();
@@ -47,7 +47,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         Category category = categoryList.get(position);
-        int noteCount = position < noteCounts.size() ? noteCounts.get(position) : 0;
+        long noteCount = position < noteCounts.size() ? noteCounts.get(position) : 0L;
 
         holder.categoryName.setText(category.name);
         holder.noteCount.setText(String.valueOf(noteCount));
