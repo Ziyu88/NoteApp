@@ -1,4 +1,4 @@
-package com.calculator.notepadapp;
+package com.calculator.notepadapp.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,22 +13,17 @@ import com.calculator.notepadapp.R;
 import com.calculator.notepadapp.model.Note;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class TrashNoteAdapter extends RecyclerView.Adapter<TrashNoteAdapter.TrashViewHolder> {
 
-    private List<Note> noteList = new ArrayList<>();
+    private List<Note> noteList;
     private OnTrashActionListener actionListener;
 
-    public void setNoteList(List<Note> notes) {
-        if (notes == null) {
-            this.noteList = new ArrayList<>();
-        } else {
-            this.noteList = new ArrayList<>(notes);
-        }
+    public void setNoteList(Object notes) {
+        this.noteList = notes;
         notifyDataSetChanged();
     }
 
