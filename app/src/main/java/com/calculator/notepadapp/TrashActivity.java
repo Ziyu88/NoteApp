@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TrashActivity extends AppCompatActivity {
-
     private NoteDatabase noteDatabase;
     private TrashNoteAdapter adapter;
     private TextView textEmpty;
@@ -34,10 +33,10 @@ public class TrashActivity extends AppCompatActivity {
 
         ImageButton buttonBack = findViewById(R.id.buttonTrashBack);
         buttonBack.setOnClickListener(v -> finish());
-
         textEmpty = findViewById(R.id.textTrashEmpty);
         RecyclerView recyclerView = findViewById(R.id.recyclerViewTrash);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
 
         adapter = new TrashNoteAdapter();
         recyclerView.setAdapter(adapter);
@@ -77,11 +76,10 @@ public class TrashActivity extends AppCompatActivity {
                 .setNegativeButton("取消", null)
                 .show();
     }
-
     private void restoreNote(Note note) {
         executor.execute(() -> {
             noteDatabase.noteDao().restoreNoteById(note.id);
-            runOnUiThread(() -> Toast.makeText(this, "已恢复", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> showToastIfActive("已恢复"));
         });
     }
 
@@ -98,9 +96,23 @@ public class TrashActivity extends AppCompatActivity {
     private void deleteForever(Note note) {
         executor.execute(() -> {
             noteDatabase.noteDao().deleteById(note.id);
-            runOnUiThread(() -> Toast.makeText(this, "已彻底删除", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> showToastIfActive("已彻底删除"));
         });
     }
+
+    private void showToastIfActive(String message) {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
+    }
+}
     private List<Note> coerceNoteList(Object notes) {
         if (notes instanceof List<?>) {
             List<?> rawList = (List<?>) notes;
