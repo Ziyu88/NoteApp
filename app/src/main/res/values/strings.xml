@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">NotepadApp</string>
+    <string name="note_title_fallback">无标题</string>
+    <string name="note_word_count">%1$d字</string>
+    <string name="trash_deleted_time">删除时间：%1$s</string>
+    <string name="trash_deleted_time_unknown">删除时间：未知</string>
+    <string name="selected_count">已选择 %1$d 项</string>
+    <string name="current_theme">当前主题：%1$s</string>
 </resources>
