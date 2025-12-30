@@ -48,7 +48,7 @@ public interface NoteDao {
 
     @WorkerThread
     @Query("SELECT COUNT(*) FROM Note WHERE isDeleted = 0")
-    long countAllNotes();
+    Long countAllNotes();
 
     // 物理删除已在回收站中超过指定时间的笔记
     @WorkerThread
