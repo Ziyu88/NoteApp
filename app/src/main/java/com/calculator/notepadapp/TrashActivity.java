@@ -55,11 +55,17 @@ public class TrashActivity extends AppCompatActivity {
         });
 
         noteDatabase.noteDao().getDeletedNotes().observe(this, notes -> {
+            adapter.submitList(notes);
             List<Note> noteList = coerceNoteList(notes);
             adapter.setNoteList(noteList);
             boolean isEmpty = noteList.isEmpty();
             textEmpty.setVisibility(isEmpty ? TextView.VISIBLE : TextView.GONE);
         });
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
     }
 
     private void confirmRestore(Note note) {
