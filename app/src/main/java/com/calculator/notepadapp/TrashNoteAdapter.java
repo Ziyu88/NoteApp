@@ -22,7 +22,7 @@ public class TrashNoteAdapter extends RecyclerView.Adapter<TrashNoteAdapter.Tras
     private List<Note> noteList;
     private OnTrashActionListener actionListener;
 
-    public void setNoteList(Object notes) {
+    public void setNoteList(List<Note> notes) {
         this.noteList = notes;
         notifyDataSetChanged();
     }

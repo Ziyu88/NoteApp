@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.calculator.notepadapp.adapter.TrashNoteAdapter;
 import com.calculator.notepadapp.model.Note;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +26,7 @@ public class TrashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeHelper.applyTheme(this);
         setContentView(R.layout.activity_trash);
 
         noteDatabase = NoteDatabase.getInstance(this);
@@ -54,19 +54,12 @@ public class TrashActivity extends AppCompatActivity {
         });
 
         noteDatabase.noteDao().getDeletedNotes().observe(this, notes -> {
-            adapter.submitList(notes);
-            List<Note> noteList = coerceNoteList(notes);
+            List<Note> noteList = notes == null ? java.util.Collections.emptyList() : notes;
             adapter.setNoteList(noteList);
             boolean isEmpty = noteList.isEmpty();
             textEmpty.setVisibility(isEmpty ? TextView.VISIBLE : TextView.GONE);
         });
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        executor.shutdown();
-    }
-
     private void confirmRestore(Note note) {
         String title = (note.title != null && !note.title.trim().isEmpty()) ? note.title : "无标题";
         new AlertDialog.Builder(this)
@@ -111,19 +104,5 @@ public class TrashActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         executor.shutdown();
-    }
-}
-    private List<Note> coerceNoteList(Object notes) {
-        if (notes instanceof List<?>) {
-            List<?> rawList = (List<?>) notes;
-            List<Note> result = new ArrayList<>(rawList.size());
-            for (Object item : rawList) {
-                if (item instanceof Note) {
-                    result.add((Note) item);
-                }
-            }
-            return result;
-        }
-        return new ArrayList<>();
     }
 }
