@@ -57,6 +57,7 @@ dependencies {
     // 添加这行来解决问题
     implementation("androidx.work:work-runtime:2.9.0")
 
-    // Kotlin metadata support (>= 2.1.0)
+    // Kotlin Metadata 版本对齐，避免编译期 Metadata 版本冲突
     implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
+    annotationProcessor("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
 }
